@@ -151,6 +151,8 @@ void HexDevice::createLogicalDevice() {
 
   VkPhysicalDeviceFeatures deviceFeatures = {};
   deviceFeatures.samplerAnisotropy = VK_TRUE;
+  // deviceFeatures.fillModeNonSolid = VK_TRUE;
+  // deviceFeatures.wideLines = VK_TRUE;
 
   VkDeviceCreateInfo createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -209,8 +211,13 @@ bool HexDevice::isDeviceSuitable(VkPhysicalDevice device) {
   VkPhysicalDeviceFeatures supportedFeatures;
   vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 
+  VkPhysicalDeviceProperties deviceProperties;
+  vkGetPhysicalDeviceProperties(device, &deviceProperties);
+
+  // return indices.isComplete() && extensionsSupported && swapChainAdequate &&
+  //        supportedFeatures.samplerAnisotropy;
   return indices.isComplete() && extensionsSupported && swapChainAdequate &&
-         supportedFeatures.samplerAnisotropy;
+         supportedFeatures.samplerAnisotropy && supportedFeatures.geometryShader && deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU /* Needed a true GPU not NVIDIA integrated :) */;
 }
 
 void HexDevice::populateDebugMessengerCreateInfo(

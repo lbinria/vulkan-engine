@@ -3,6 +3,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include <array>
 #include <stdexcept>
@@ -48,6 +49,8 @@ namespace hex {
 		triangle.model = hexModel;
 		triangle.color = {0.1f, 0.8f, 0.1f};
 		triangle.transform2d.translation.x = .2f;
+		triangle.transform2d.scale = {2.f, .5f};
+		triangle.transform2d.rotation = glm::two_pi<float>() * .25f;
 
 		gameObjects.push_back(std::move(triangle));
 	}
@@ -189,7 +192,7 @@ namespace hex {
 		hexPipeline->bind(commandBuffer);
 
 		for (auto &gameObject : gameObjects) {
-			
+			gameObject.transform2d.rotation = glm::mod(gameObject.transform2d.rotation + 0.001f, glm::two_pi<float>());
 
 			SimplePushConstantData push{};
 			push.offset = gameObject.transform2d.translation;
