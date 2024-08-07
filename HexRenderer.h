@@ -26,7 +26,12 @@ namespace hex {
 
 		VkCommandBuffer getCurrentCommandBuffer() const {
 			assert(isFrameStarted && "Cannot get command buffer when frame not in progress");
-			return commandBuffers[currentImageIndex];
+			return commandBuffers[currentFrameIndex];
+		}
+
+		int getFrameIndex() const { 
+			assert(isFrameStarted && "Cannot get frame index when frame is not in progress");
+			return currentFrameIndex; 
 		}
 
 		VkCommandBuffer beginFrame();
@@ -46,7 +51,8 @@ namespace hex {
 		std::vector<VkCommandBuffer> commandBuffers;
 
 		uint32_t currentImageIndex;
-		bool isFrameStarted;
+		int currentFrameIndex{0};
+		bool isFrameStarted{false};
 
 	};
 }

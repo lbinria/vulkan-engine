@@ -28,17 +28,20 @@ namespace hex {
 		if (hexSwapChain == nullptr) {
 			hexSwapChain = std::make_unique<HexSwapChain>(hexDevice, extent);
 		} else {
-			hexSwapChain = std::make_unique<HexSwapChain>(hexDevice, extent, std::move(hexSwapChain));
-			if (hexSwapChain->imageCount() != commandBuffers.size()) {
-				freeCommandBuffers();
-				createCommandBuffers();
+			std::shared_ptr<HexSwapChain> oldSwapChain = std::move(hexSwapChain);
+			hexSwapChain = std::make_unique<HexSwapChain>(hexDevice, extent, oldSwapChain);
+
+			if (!oldSwapChain->compareSwapFormat(*hexSwapChain.get())) {
+				// Maybe not throw an error here, make a callback to get error
+				throw std::runtime_error("Swap chain image(or depth) format has changed");
 			}
+
 		}
 
 	}
 
 	void HexRenderer::createCommandBuffers() {
-		commandBuffers.resize(hexSwapChain->imageCount());
+		commandBuffers.resize(HexSwapChain::MAX_FRAMES_IN_FLIGHT);
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY; // Can be submitted
@@ -109,6 +112,7 @@ namespace hex {
 		}
 
 		isFrameStarted = false;
+		currentFrameIndex = (currentFrameIndex + 1) % HexSwapChain::MAX_FRAMES_IN_FLIGHT;
 	}
 
 	void HexRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {

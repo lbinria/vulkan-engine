@@ -1,7 +1,6 @@
 #pragma once
 
 #include "HexWindow.h"
-#include "HexPipeline.h"
 #include "hex_device.h"
 #include "HexRenderer.h"
 #include "HexGameObject.h"
@@ -26,17 +25,12 @@ namespace hex {
 		private:
 
 		void loadGameObjects();
-		void createPipelineLayout();
-		void createPipeline();
-		void renderGameObjectObjects(VkCommandBuffer commandBuffer);
 
 		HexWindow hexWindow{WIDTH, HEIGHT, "Hello !"};
 		HexDevice hexDevice{hexWindow};
 
 		HexRenderer hexRenderer{hexWindow, hexDevice};
 
-		std::unique_ptr<HexPipeline> hexPipeline;
-		VkPipelineLayout pipelineLayout;
 		std::vector<HexGameObject> gameObjects;
 
 	};
