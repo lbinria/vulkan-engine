@@ -19,7 +19,7 @@ namespace hex {
 
 		HexRenderer(const HexRenderer&) = delete;
 		HexRenderer &operator=(const HexRenderer &) = delete;
-
+		float getAspectRatio() const { return hexSwapChain->extentAspectRatio(); }
 		VkRenderPass getSwapChainRenderPass() const { return hexSwapChain->getRenderPass(); }
 
 		bool isFrameInProgress() const { return isFrameStarted; }

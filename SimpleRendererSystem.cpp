@@ -12,8 +12,7 @@
 namespace hex {
 
 	struct SimplePushConstantData {
-		glm::mat2 transform{1.f}; // identity matrix (initialize diagonal by 1)
-		glm::vec2 offset;
+		glm::mat4 transform{1.f}; // identity matrix (initialize diagonal by 1)
 		alignas(16) glm::vec3 color;
 	};
 
@@ -62,16 +61,18 @@ namespace hex {
 		);
 	}
 
-	void SimpleRendererSystem::renderGameObjectObjects(VkCommandBuffer commandBuffer, std::vector<HexGameObject> &gameObjects) {
+	void SimpleRendererSystem::renderGameObjectObjects(VkCommandBuffer commandBuffer, std::vector<HexGameObject> &gameObjects, const HexCamera &camera) {
 		hexPipeline->bind(commandBuffer);
 
+		auto projectionView = camera.getProjection() * camera.getViewMatrix();
+
 		for (auto &gameObject : gameObjects) {
-			gameObject.transform2d.rotation = glm::mod(gameObject.transform2d.rotation + 0.001f, glm::two_pi<float>());
+			gameObject.transform.rotation.y = glm::mod(gameObject.transform.rotation.y + 0.001f, glm::two_pi<float>());
+			gameObject.transform.rotation.z = glm::mod(gameObject.transform.rotation.z + 0.002f, glm::two_pi<float>());
 
 			SimplePushConstantData push{};
-			push.offset = gameObject.transform2d.translation;
 			push.color = gameObject.color;
-			push.transform = gameObject.transform2d.mat2();
+			push.transform = projectionView * gameObject.transform.mat4();
 
 			vkCmdPushConstants(
 				commandBuffer, 
