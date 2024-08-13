@@ -1,6 +1,7 @@
 #include "HexApp.h"
 
 #include "HexCamera.h"
+#include "KeyboardMovementController.h"
 #include "SimpleRendererSystem.h"
 
 #define GLM_FORCE_RADIANS
@@ -11,6 +12,8 @@
 #include <array>
 #include <stdexcept>
 #include <cassert>
+
+#include <chrono>
 
 namespace hex {
 
@@ -25,23 +28,36 @@ namespace hex {
 
 		SimpleRendererSystem simpleRendererSystem{hexDevice, hexRenderer.getSwapChainRenderPass()};
 		HexCamera camera{};
+		
 		// camera.setViewDirection(glm::vec3{0.f}, glm::vec3{0.5f, 0.f, 1.f});
 		camera.setViewTarget(glm::vec3{-1.f, -2.f, 2.f}, glm::vec3{0.f, 0.f, 2.5f});
 
+		auto viewerObject = HexGameObject::createGameObject();
+		KeyboardMovementController cameraController{};
+
+		auto currentTime = std::chrono::high_resolution_clock::now();
+
 		while (!hexWindow.shouldClose()) {
 			glfwPollEvents();
-			
+
+			auto newTime = std::chrono::high_resolution_clock::now();
+			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+			currentTime = newTime;
+
+			cameraController.moveInPlaneXZ(hexWindow.getGLFWWindow(), frameTime, viewerObject);
+			camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+
 			float aspect = hexRenderer.getAspectRatio();
 			// camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
 			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
-			
+
 			if (auto commandBuffer = hexRenderer.beginFrame()) {
 				hexRenderer.beginSwapChainRenderPass(commandBuffer);
 				simpleRendererSystem.renderGameObjectObjects(commandBuffer, gameObjects, camera);
 				hexRenderer.endSwapChainRenderPass(commandBuffer);
 				hexRenderer.endFrame();
 			}
-
+						
 		}
 
 		vkDeviceWaitIdle(hexDevice.device());

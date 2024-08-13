@@ -67,8 +67,8 @@ namespace hex {
 		auto projectionView = camera.getProjection() * camera.getViewMatrix();
 
 		for (auto &gameObject : gameObjects) {
-			gameObject.transform.rotation.y = glm::mod(gameObject.transform.rotation.y + 0.001f, glm::two_pi<float>());
-			gameObject.transform.rotation.z = glm::mod(gameObject.transform.rotation.z + 0.002f, glm::two_pi<float>());
+			// gameObject.transform.rotation.y = glm::mod(gameObject.transform.rotation.y + 0.001f, glm::two_pi<float>());
+			// gameObject.transform.rotation.z = glm::mod(gameObject.transform.rotation.z + 0.002f, glm::two_pi<float>());
 
 			SimplePushConstantData push{};
 			push.color = gameObject.color;
